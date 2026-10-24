@@ -1,10 +1,12 @@
 """Gemini Vision wrapper. STUB — returns a canned triage until the API key is wired."""
 
 import base64
+import io
 import logging
 import os
 
 import httpx
+from PIL import Image
 
 from ..models import TriageReport
 
@@ -33,13 +35,15 @@ async def analyze_image(image_bytes: bytes) -> TriageReport:
         log.warning("GEMINI_API_KEY not set — returning stub triage.")
         return _stub_triage()
 
+    shrunk = _downsample(image_bytes, max_dim=1024)
+
     payload = {
         "contents": [{
             "parts": [
                 {"text": PROMPT},
                 {"inline_data": {
                     "mime_type": "image/jpeg",
-                    "data": base64.b64encode(image_bytes).decode(),
+                    "data": base64.b64encode(shrunk).decode(),
                 }},
             ],
         }],
@@ -47,7 +51,7 @@ async def analyze_image(image_bytes: bytes) -> TriageReport:
     }
 
     try:
-        async with httpx.AsyncClient(timeout=30) as client:
+        async with httpx.AsyncClient(timeout=90) as client:
             r = await client.post(
                 GEMINI_URL,
                 params={"key": GEMINI_API_KEY},
@@ -61,6 +65,19 @@ async def analyze_image(image_bytes: bytes) -> TriageReport:
     except Exception as e:
         log.exception("Gemini call failed, falling back to stub: %s", e)
         return _stub_triage()
+
+
+def _downsample(image_bytes: bytes, max_dim: int) -> bytes:
+    """Shrink the image to max_dim on the longest side; keeps Gemini snappy."""
+    try:
+        img = Image.open(io.BytesIO(image_bytes))
+        img.thumbnail((max_dim, max_dim))
+        buf = io.BytesIO()
+        img.convert("RGB").save(buf, format="JPEG", quality=85)
+        return buf.getvalue()
+    except Exception as e:
+        log.warning("Downsample failed, sending original: %s", e)
+        return image_bytes
 
 
 def _stub_triage() -> TriageReport:

@@ -1,6 +1,7 @@
 """Incident store — Tiger Data (TimescaleDB) with in-memory fallback."""
 
 import json
+from datetime import datetime
 from threading import Lock
 
 from .db import DB
@@ -48,7 +49,7 @@ class IncidentStore:
                 incident.incident_id,
                 incident.node_id,
                 incident.trigger,
-                incident.received_at,
+                datetime.fromisoformat(incident.received_at),
                 incident.image_url,
                 incident.triage.model_dump_json(),
                 incident.audio_url,
