@@ -1,0 +1,6 @@
+104-238-130-123.sslip.io {
+    reverse_proxy 127.0.0.1:8000
+    log {
+        output stdout
+    }
+}
