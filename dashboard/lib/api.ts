@@ -1,5 +1,4 @@
 import type { IncidentSummary } from "./types";
-import { MOCK_INCIDENTS } from "./mock-data";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -13,7 +12,8 @@ export async function fetchIncidents(): Promise<{
     const incidents = (await r.json()) as IncidentSummary[];
     return { incidents: incidents.map(absolutize), usingMock: false };
   } catch {
-    return { incidents: MOCK_INCIDENTS, usingMock: true };
+    // No mock fallback — real data only. If backend is unreachable, show empty state.
+    return { incidents: [], usingMock: true };
   }
 }
 
