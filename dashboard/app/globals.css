@@ -618,3 +618,132 @@
   0%, 100% { opacity: 0.5; stroke-width: 1; }
   50%      { opacity: 0.15; stroke-width: 1; }
 }
+
+/* Fix the red tab bleeding past the rounded badge corners */
+.brand {
+  overflow: hidden !important;
+}
+.brand-tab {
+  top: 10px !important;
+  bottom: 10px !important;
+  height: auto !important;
+  left: 0 !important;
+  width: 5px !important;
+  border-radius: 0 2px 2px 0;
+}
+
+/* ================= STYLIZED LOGO ================= */
+.brand {
+  position: relative;
+  padding-right: 24px !important;
+}
+.brand-glyph {
+  filter: drop-shadow(0 0 4px rgba(25, 71, 209, 0.6));
+}
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.brand-line {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1;
+}
+.brand-wit,
+.brand-nod {
+  font-family: var(--font-sans), 'Inter:Extra Bold Italic', sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 22px;
+  letter-spacing: -0.5px;
+  color: var(--blue);
+}
+.brand-nod {
+  background: var(--blue);
+  color: var(--lime);
+  padding: 2px 6px 1px;
+  border-radius: 2px;
+}
+.brand-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 6px var(--red);
+  display: inline-block;
+  animation: pulse 1.6s infinite;
+}
+.brand small {
+  display: flex !important;
+  align-items: center;
+  gap: 5px;
+  font-size: 8px;
+  color: rgba(10, 26, 58, 0.75);
+  font-weight: 600;
+  letter-spacing: 0.4px;
+}
+.brand-katakana {
+  color: var(--red);
+  font-weight: 700;
+  font-family: 'Noto Sans:Regular', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+  font-size: 9px;
+}
+.brand-sep {
+  opacity: 0.5;
+}
+/* Angular cut corner on top-right of badge */
+.brand-corner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 14px;
+  height: 14px;
+  background: #000;
+  clip-path: polygon(100% 0, 100% 100%, 0 0);
+  pointer-events: none;
+}
+
+/* ================= HEALTH CHIP (replaces OP. KATO) ================= */
+.operator.health {
+  text-align: right;
+  gap: 14px;
+}
+.health-chip {
+  text-align: right;
+  min-width: 140px;
+}
+.health-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+.health-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.health-dot.ok   { background: var(--lime); box-shadow: 0 0 8px var(--lime); animation: pulse 1.8s infinite; }
+.health-dot.warn { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
+.health-label {
+  color: var(--muted);
+  letter-spacing: 2px;
+}
+.health-value {
+  color: var(--cyan);
+  min-width: 50px;
+  text-align: right;
+}
+.health-chip small {
+  display: block !important;
+  color: var(--muted);
+  font-size: 8px;
+  letter-spacing: 1.2px;
+  margin-top: 4px !important;
+  font-family: var(--font-mono);
+}

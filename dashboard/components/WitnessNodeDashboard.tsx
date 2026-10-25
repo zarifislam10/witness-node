@@ -76,23 +76,44 @@ export default function WitnessNodeDashboard() {
   const [zoom, setZoom] = useState(1);
   const [paused, setPaused] = useState(false);
   const [clock, setClock] = useState<Date | null>(null);
+  const [latencyMs, setLatencyMs] = useState<number | null>(null);
+  const [lastSyncAt, setLastSyncAt] = useState<Date | null>(null);
+  const [syncAgo, setSyncAgo] = useState<string>("—");
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Poll live backend.
+  // Poll live backend + measure latency.
   useEffect(() => {
     let alive = true;
     const tick = async () => {
+      const t0 = performance.now();
       const { incidents: raw, usingMock } = await fetchIncidents();
+      const dt = Math.round(performance.now() - t0);
       if (!alive) return;
       setIncidents(toFMIncidents(raw));
       setUsingMock(usingMock);
       setLoaded(true);
+      if (!usingMock) {
+        setLatencyMs(dt);
+        setLastSyncAt(new Date());
+      }
     };
     tick();
     const id = setInterval(tick, POLL_MS);
     return () => { alive = false; clearInterval(id); };
   }, []);
+
+  // Last-sync counter updates every second.
+  useEffect(() => {
+    const tick = () => {
+      if (!lastSyncAt) { setSyncAgo("—"); return; }
+      const sec = Math.max(0, Math.floor((Date.now() - lastSyncAt.getTime()) / 1000));
+      setSyncAgo(sec < 60 ? `${sec}s` : `${Math.floor(sec / 60)}m`);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [lastSyncAt]);
 
   // Live clock (hydration-safe: starts null, set in effect).
   useEffect(() => {
@@ -180,11 +201,20 @@ export default function WitnessNodeDashboard() {
         <header className="topbar">
           <div className="brand">
             <span className="brand-tab" />
-            <img src="/assets/a90f4.svg" alt="Witness Node beacon" />
-            <div>
-              <strong>WITNESS·NODE</strong>
-              <small>RESCUE NETWORK / {selected?.id ?? "STANDBY"}</small>
+            <img src="/assets/a90f4.svg" alt="Witness Node beacon" className="brand-glyph" />
+            <div className="brand-text">
+              <div className="brand-line">
+                <span className="brand-wit">WITNESS</span>
+                <span className="brand-dot" aria-hidden="true" />
+                <span className="brand-nod">NODE</span>
+              </div>
+              <small>
+                <span className="brand-katakana">ウィットネス</span>
+                <span className="brand-sep">·</span>
+                <span>{selected?.id ?? "STANDBY"}</span>
+              </small>
             </div>
+            <span className="brand-corner" aria-hidden="true" />
           </div>
           <div className="network-state">
             <span className="pill cyan">
@@ -197,13 +227,6 @@ export default function WitnessNodeDashboard() {
               {clock ? clock.toLocaleTimeString("en-GB", { hour12: false }) : "--:--:--"} <i>UTC</i>
               <small>{usingMock ? "FALLBACK · BACKEND UNREACHABLE" : "LIVE / VULTR + TIGER + SOLANA"}</small>
             </div>
-          </div>
-          <div className="operator">
-            <span className="slashes">/////</span>
-            <span>
-              OP. KATO<small>SHIFT 04 ↗</small>
-            </span>
-            <img src="/assets/c8c2e.png" alt="Operator Kato" />
           </div>
         </header>
 
