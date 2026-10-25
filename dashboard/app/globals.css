@@ -590,3 +590,31 @@
   box-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
 }
 .map-zoom-tl button:active { transform: scale(0.9); }
+
+/* Active marker selection ring */
+.selection-ring {
+  animation: selectionPulse 1.4s ease-in-out infinite;
+  filter: drop-shadow(0 0 12px currentColor);
+}
+@keyframes selectionPulse {
+  0%, 100% { stroke-width: 2; opacity: 0.9; }
+  50%      { stroke-width: 3; opacity: 0.4; }
+}
+.selection-ring-outer {
+  animation: selectionSpin 10s linear infinite;
+  transform-origin: center;
+}
+@keyframes selectionSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Override the broken rotation — SVG transform on <path> uses svg origin not circle center */
+.selection-ring-outer {
+  animation: outerRingPulse 2.4s ease-in-out infinite !important;
+  transform: none !important;
+}
+@keyframes outerRingPulse {
+  0%, 100% { opacity: 0.5; stroke-width: 1; }
+  50%      { opacity: 0.15; stroke-width: 1; }
+}

@@ -1,8 +1,32 @@
 "use client";
 
 import "leaflet/dist/leaflet.css";
-import { Fragment } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import { CircleMarker, MapContainer, TileLayer, Tooltip, useMap } from "react-leaflet";
+
+function MarkerFlyController({
+  markers,
+  activeIncidentId,
+}: {
+  markers: { lat: number; lng: number; incidentId: string }[];
+  activeIncidentId: string | null;
+}) {
+  const map = useMap();
+  const last = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!activeIncidentId || activeIncidentId === last.current) return;
+    const target = markers.find((m) => m.incidentId === activeIncidentId);
+    if (!target) return;
+    last.current = activeIncidentId;
+    map.flyTo([target.lat, target.lng], Math.max(map.getZoom(), 6), {
+      duration: 0.9,
+      easeLinearity: 0.25,
+    });
+  }, [activeIncidentId, markers, map]);
+
+  return null;
+}
 
 function MapControls() {
   const map = useMap();
@@ -117,15 +141,49 @@ export default function RealMap({
 
       <MapControls />
 
+      <MarkerFlyController markers={markers} activeIncidentId={activeIncidentId ?? null} />
+
       {markers.map((m) => {
         const color = SEVERITY_COLOR[m.severity];
         const active = m.incidentId === activeIncidentId;
+        const handleClick = () => onSelect?.(m.incidentId);
         return (
           <Fragment key={m.key}>
+            {/* Selection ring — only on active marker, bright + animated */}
+            {active && (
+              <>
+                <CircleMarker
+                  center={[m.lat, m.lng]}
+                  radius={28}
+                  pathOptions={{
+                    color,
+                    fillColor: color,
+                    fillOpacity: 0,
+                    weight: 2,
+                    opacity: 0.9,
+                    className: "selection-ring",
+                  }}
+                />
+                <CircleMarker
+                  center={[m.lat, m.lng]}
+                  radius={34}
+                  pathOptions={{
+                    color,
+                    fillColor: color,
+                    fillOpacity: 0,
+                    weight: 1,
+                    opacity: 0.5,
+                    dashArray: "4 4",
+                    className: "selection-ring-outer",
+                  }}
+                />
+              </>
+            )}
+
             {/* Expanding ping ring */}
             <CircleMarker
               center={[m.lat, m.lng]}
-              radius={active ? 28 : 20}
+              radius={20}
               pathOptions={{
                 color,
                 fillColor: color,
@@ -148,7 +206,7 @@ export default function RealMap({
             {/* Solid core */}
             <CircleMarker
               center={[m.lat, m.lng]}
-              radius={6}
+              radius={active ? 8 : 6}
               pathOptions={{
                 color,
                 fillColor: color,
@@ -156,9 +214,7 @@ export default function RealMap({
                 weight: 2,
                 className: "core-marker",
               }}
-              eventHandlers={{
-                click: () => onSelect?.(m.incidentId),
-              }}
+              eventHandlers={{ click: handleClick }}
             >
               <Tooltip direction="top" offset={[0, -8]} opacity={1}>
                 <strong style={{ color }}>{m.beacon}</strong>
