@@ -1,11 +1,21 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { fetchIncidents } from "@/lib/api";
 import { toFMIncidents, type FMIncident, type FMSeverity } from "@/lib/adapter";
 import { locationFor } from "@/lib/nodes";
+
+const RealMap = dynamic(() => import("./RealMap"), {
+  ssr: false,
+  loading: () => (
+    <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#8a9bac", fontSize: 11 }}>
+      loading field map…
+    </div>
+  ),
+});
 
 const POLL_MS = 3000;
 
@@ -276,51 +286,12 @@ export default function WitnessNodeDashboard() {
                 </div>
               </div>
               <div className="map-viewport">
-                <div
-                  className="map-layer"
-                  style={{ transform: `scale(${zoom})` }}
-                >
-                  <img
-                    className="usa-map"
-                    src="/assets/76a2a.svg"
-                    alt="Map of the continental United States"
-                  />
-                  {beacons.map((b) => {
-                    const active = selected?.beacon === b.id;
-                    return (
-                      <button
-                        aria-label={`${b.id}, ${b.place}`}
-                        className={"beacon " + (active ? "selected" : "")}
-                        style={{
-                          left: `${b.x}%`,
-                          top: `${b.y}%`,
-                          color: severityColor[b.severity],
-                        }}
-                        key={b.id}
-                        onClick={() => selectBeacon(b.incidentId)}
-                      >
-                        <span className="ping" />
-                        <span className="core" />
-                        <b>{b.id.replace("NODE-", "")}</b>
-                        {active && selected && (
-                          <span className="tooltip">
-                            <small>
-                              {b.id} · {b.severity}
-                            </small>
-                            <strong>{b.place}</strong>
-                            <i>{selected.coordinates}</i>
-                            <em>UPLINK LIVE · DIRECT CONFIRMED</em>
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-                <div className="zoom">
-                  <button onClick={() => setZoom((z) => Math.min(1.3, z + 0.1))}>+</button>
-                  <button onClick={() => setZoom((z) => Math.max(0.8, z - 0.1))}>−</button>
-                </div>
-                <span className="scale">▲ 500 MI / ALBERS + EPSG:5070</span>
+                <RealMap
+                  incidents={incidents}
+                  onSelect={setSelectedId}
+                  activeIncidentId={selected?.id ?? null}
+                />
+                <span className="scale">▲ ESRI DARK CANVAS · WGS84</span>
               </div>
               <div className="registry">
                 <div className="registry-title">

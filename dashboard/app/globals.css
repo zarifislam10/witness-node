@@ -277,3 +277,316 @@
     display: none;
   }
 }
+
+/* ============================= Leaflet FUI theming ============================= */
+.leaflet-container { background: #040810 !important; font-family: 'JetBrains Mono:Regular', monospace !important; }
+
+/* Zoom buttons */
+.leaflet-control-zoom {
+  border: 1px solid var(--line) !important;
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.15) !important;
+  border-radius: 2px !important;
+  overflow: hidden !important;
+}
+.leaflet-control-zoom a,
+.leaflet-control-zoom a:hover {
+  background: var(--ink) !important;
+  color: var(--cyan) !important;
+  border-bottom: 1px solid var(--line) !important;
+  font-weight: 700;
+  width: 30px !important;
+  height: 30px !important;
+  line-height: 28px !important;
+  text-decoration: none !important;
+}
+.leaflet-control-zoom a:hover {
+  background: #16202e !important;
+}
+
+/* Tooltip chunky angular blue */
+.leaflet-tooltip {
+  background: var(--blue) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-left: 4px solid var(--lime) !important;
+  padding: 10px 14px !important;
+  font-size: 10px !important;
+  font-family: 'JetBrains Mono:Regular', monospace !important;
+  clip-path: polygon(0 0, 96% 0, 100% 14%, 100% 100%, 0 100%);
+  filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.25));
+}
+.leaflet-tooltip::before { display: none !important; }
+
+.leaflet-tooltip strong { font: italic 800 12px 'Inter:Extra Bold Italic', sans-serif; }
+
+/* Marker pulse animations (reused from Figma Make .beacon) */
+.ping-ring {
+  animation: pingRing 2s ease-out infinite;
+  transform-origin: center;
+}
+@keyframes pingRing {
+  0%   { opacity: 0.9; stroke-width: 2px; r: 6; }
+  100% { opacity: 0;   stroke-width: 1px; r: 32; }
+}
+.core-marker {
+  animation: coreGlow 1.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px currentColor);
+}
+@keyframes coreGlow {
+  0%, 100% { stroke-opacity: 1; }
+  50%      { stroke-opacity: 0.35; }
+}
+
+/* Scale label sits over the map in the FUI corner */
+.map-viewport .scale {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 500;
+  background: rgba(5, 10, 17, 0.75);
+  padding: 4px 8px;
+  color: var(--muted);
+  font-size: 8px;
+  letter-spacing: 1px;
+  border: 1px solid var(--line);
+  pointer-events: none;
+}
+
+/* Force Leaflet to receive pointer events + proper cursor */
+.leaflet-container,
+.leaflet-container .leaflet-pane,
+.leaflet-container .leaflet-tile-pane,
+.leaflet-container .leaflet-overlay-pane {
+  touch-action: none !important;
+  pointer-events: auto !important;
+}
+.leaflet-container { cursor: grab !important; }
+.leaflet-container:active,
+.leaflet-dragging .leaflet-container { cursor: grabbing !important; }
+
+/* Make sure the map viewport doesn't clip the Leaflet instance */
+.map-viewport { position: relative; }
+.map-viewport > .leaflet-container { position: absolute !important; inset: 0 !important; }
+
+/* FUI pan controls (D-pad style) */
+.pan-controls {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px;
+  background: rgba(5, 10, 17, 0.85);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.15);
+}
+.pan-controls .pan-row {
+  display: flex;
+  gap: 2px;
+}
+.pan-controls button {
+  width: 32px;
+  height: 32px;
+  background: var(--ink);
+  border: 1px solid var(--line);
+  color: var(--cyan);
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  font-family: var(--font-sans), sans-serif;
+}
+.pan-controls button:hover {
+  background: #16202e;
+  border-color: var(--cyan);
+  box-shadow: 0 0 8px rgba(34, 211, 238, 0.4);
+}
+.pan-controls button:active {
+  transform: scale(0.95);
+}
+
+/* Hide old pan-controls block — replaced by map-controls */
+.pan-controls { display: none !important; }
+
+/* Compact FUI map controls: zoom + 5-key pan pad, no background block */
+.map-controls {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  z-index: 500;
+  display: grid;
+  grid-template-columns: repeat(3, 28px);
+  grid-template-rows: 28px 28px 10px 28px 28px 28px;
+  grid-template-areas:
+    ".  zi ."
+    ".  zo ."
+    ".  .  ."
+    ".  up ."
+    "lf ct rt"
+    ".  dn .";
+  gap: 2px;
+  pointer-events: none; /* only buttons receive clicks */
+}
+.map-controls button {
+  pointer-events: auto;
+  width: 28px;
+  height: 28px;
+  background: rgba(5, 10, 17, 0.55);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  color: var(--cyan);
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  transition: all 0.15s;
+  font-family: var(--font-sans), sans-serif;
+}
+.map-controls button:hover {
+  background: rgba(34, 211, 238, 0.18);
+  border-color: var(--cyan);
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+}
+.map-controls button:active { transform: scale(0.9); }
+.map-controls > button:nth-child(1) { grid-area: zi; } /* + */
+.map-controls > button:nth-child(2) { grid-area: zo; } /* - */
+.map-controls > button:nth-child(4) { grid-area: up; }
+.map-controls > button:nth-child(5) { grid-area: lf; }
+.map-controls > button:nth-child(6) { grid-area: ct; }
+.map-controls > button:nth-child(7) { grid-area: rt; }
+.map-controls > button:nth-child(8) { grid-area: dn; }
+.map-controls-gap { grid-area: 3 / 1 / 4 / 4; }
+
+/* Reset the broken grid, use a cleaner layout */
+.map-controls {
+  grid-template-columns: unset !important;
+  grid-template-rows: unset !important;
+  grid-template-areas: unset !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+}
+.map-controls > button {
+  grid-area: unset !important;
+}
+.map-controls .map-controls-gap { display: none; }
+
+/* First two children = zoom pair (horizontal row) */
+.map-controls::before {
+  content: "";
+  display: block;
+}
+
+/* ================= CLEAN MAP CONTROLS v2 (overrides earlier) ================= */
+.map-controls {
+  position: absolute !important;
+  bottom: 14px !important;
+  right: 14px !important;
+  z-index: 500 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  grid-template: unset !important;
+  grid-template-columns: unset !important;
+  grid-template-rows: unset !important;
+  grid-template-areas: unset !important;
+  pointer-events: none !important;
+}
+.map-controls button {
+  pointer-events: auto !important;
+  width: 30px !important;
+  height: 30px !important;
+  background: rgba(5, 10, 17, 0.55) !important;
+  border: 1px solid rgba(34, 211, 238, 0.3) !important;
+  color: var(--cyan) !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  backdrop-filter: blur(6px) !important;
+  transition: all 0.15s !important;
+  font-family: var(--font-sans), sans-serif !important;
+  grid-area: unset !important;
+}
+.map-controls button:hover {
+  background: rgba(34, 211, 238, 0.18) !important;
+  border-color: var(--cyan) !important;
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.5) !important;
+}
+.map-controls button:active { transform: scale(0.9) !important; }
+
+/* Zoom pair: horizontal row of 2 */
+.mc-zoom {
+  display: flex;
+  gap: 2px;
+  align-self: center;
+}
+
+/* Pan pad: 3x3 cross grid */
+.mc-pad {
+  display: grid;
+  grid-template-columns: 30px 30px 30px;
+  grid-template-rows: 30px 30px 30px;
+  gap: 2px;
+}
+.mc-pad .mc-up     { grid-column: 2; grid-row: 1; }
+.mc-pad .mc-left   { grid-column: 1; grid-row: 2; }
+.mc-pad .mc-center { grid-column: 2; grid-row: 2; }
+.mc-pad .mc-right  { grid-column: 3; grid-row: 2; }
+.mc-pad .mc-down   { grid-column: 2; grid-row: 3; }
+
+/* === Final cross layout for the pan pad === */
+.mc-pad {
+  display: grid !important;
+  grid-template-columns: 30px 30px 30px !important;
+  grid-template-rows: 30px 30px 30px !important;
+  grid-template-areas:
+    ". up ."
+    "lf  . rt"
+    ". dn ." !important;
+  gap: 2px !important;
+}
+.mc-pad .mc-up    { grid-area: up !important; }
+.mc-pad .mc-left  { grid-area: lf !important; }
+.mc-pad .mc-right { grid-area: rt !important; }
+.mc-pad .mc-down  { grid-area: dn !important; }
+
+/* Top-left zoom pair */
+.map-zoom-tl {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.map-zoom-tl button {
+  width: 30px;
+  height: 30px;
+  background: rgba(5, 10, 17, 0.55);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  color: var(--cyan);
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  transition: all 0.15s;
+  font-family: var(--font-sans), sans-serif;
+}
+.map-zoom-tl button:hover {
+  background: rgba(34, 211, 238, 0.18);
+  border-color: var(--cyan);
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+}
+.map-zoom-tl button:active { transform: scale(0.9); }
