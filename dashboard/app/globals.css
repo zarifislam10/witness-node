@@ -9,12 +9,15 @@
   --text-dim: #8a95a8;
   --text-faint: #556070;
 
-  --accent: #ff5756;
-  --accent-gradient: linear-gradient(135deg, #ff5756 0%, #ff9458 100%);
+  --accent: #ff2d55;        /* hot pink/red */
+  --accent-blue: #1947d1;   /* chunky SF-logo blue */
+  --accent-lime: #a8e86c;   /* metro-card lime */
+  --accent-cyan: #22d3ee;   /* FUI cyan */
+
   --good: #4ade80;
   --warn: #fbbf24;
   --crit: #ef4444;
-  --info: #60a5fa;
+  --info: #22d3ee;
   --purple: #a78bfa;
 
   --radius-sm: 6px;
@@ -24,6 +27,13 @@
   --shadow-sm: 0 1px 2px rgba(0,0,0,.3);
   --shadow: 0 8px 24px rgba(0,0,0,.4);
   --shadow-lg: 0 20px 60px rgba(0,0,0,.5);
+
+  /* Hazard stripe gradient (used on badges + corners) */
+  --hazard-stripes: repeating-linear-gradient(
+    135deg,
+    var(--accent) 0 8px,
+    #000 8px 16px
+  );
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -65,55 +75,117 @@ a { color: inherit; text-decoration: none; }
 
 /* ============================= HEADER ============================= */
 .header {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 24px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  padding: 16px 24px;
+  background: #000;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  backdrop-filter: blur(10px);
+  overflow: hidden;
 }
-.header h1 {
-  font-size: 18px;
-  letter-spacing: 4px;
-  font-weight: 800;
+/* Hazard stripes down the right side */
+.header::after {
+  content: "";
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 40px;
+  background: var(--hazard-stripes);
+  opacity: 0.9;
+  clip-path: polygon(20px 0, 100% 0, 100% 100%, 0 100%);
 }
-.header h1 .accent {
-  background: var(--accent-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+
+/* Metro-card style logo badge */
+.logo-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px 10px 14px;
+  background: var(--accent-lime);
+  border-radius: 3px;
+  z-index: 1;
 }
+.logo-badge::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 70%;
+  background: var(--accent);
+  border-radius: 2px;
+}
+.logo-mark {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  font-family: var(--font-sans);
+  font-weight: 900;
+  font-size: 22px;
+  color: var(--accent-blue);
+  letter-spacing: -1px;
+  font-style: italic;
+  line-height: 1;
+}
+.logo-mark-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: inline-block;
+  margin-left: 1px;
+}
+.logo-text {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  color: #0a1a3a;
+  text-transform: uppercase;
+}
+
 .header .meta {
   color: var(--text-dim);
-  font-size: 12px;
+  font-size: 11px;
   display: flex;
-  gap: 20px;
+  gap: 16px;
   align-items: center;
   font-family: var(--font-mono);
+  z-index: 1;
+  padding-right: 50px; /* clear the hazard stripes */
 }
+
+/* FUI status pill */
 .pill {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 5px 12px;
-  border-radius: 999px;
+  gap: 8px;
+  padding: 6px 12px 6px 10px;
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 1.4px;
+  letter-spacing: 2px;
   font-weight: 700;
-  border: 1px solid var(--border);
-  background: var(--surface-raised);
+  background: #000;
+  border: 1px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
 }
-.pill .dot { width: 7px; height: 7px; border-radius: 50%; }
-.pill.live .dot {
-  background: var(--good);
-  box-shadow: 0 0 10px var(--good);
-  animation: pulse 1.6s infinite;
+.pill .dot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 8px var(--accent-cyan);
+  animation: pulse 1.4s infinite;
 }
-.pill.mock .dot { background: var(--warn); }
-@keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.3 } }
+.pill.mock {
+  border-color: var(--warn);
+  color: var(--warn);
+}
+.pill.mock .dot { background: var(--warn); box-shadow: 0 0 8px var(--warn); animation: none; }
+@keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.35 } }
 
 /* ============================= STATS ============================= */
 .stats {
@@ -253,14 +325,73 @@ a { color: inherit; text-decoration: none; }
   min-height: 580px;
 }
 
+/* ============================= FUI corner brackets ============================= */
+.fui {
+  position: relative;
+}
+.fui::before,
+.fui::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  z-index: 2;
+}
+.fui::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid var(--accent-cyan);
+  border-left: 2px solid var(--accent-cyan);
+}
+.fui::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid var(--accent-cyan);
+  border-right: 2px solid var(--accent-cyan);
+}
+.fui-glow::before,
+.fui-glow::after {
+  box-shadow: 0 0 8px var(--accent-cyan);
+}
+
+/* Hazard stripe accent block (used as decoration) */
+.hazard-block {
+  background: var(--hazard-stripes);
+  height: 10px;
+  width: 60px;
+}
+
 /* ============================= MAP ============================= */
 .map-panel {
+  position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+.map-panel::before,
+.map-panel::after {
+  content: "";
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  z-index: 2;
+}
+.map-panel::before {
+  top: 10px;
+  left: 10px;
+  border-top: 2px solid var(--accent-cyan);
+  border-left: 2px solid var(--accent-cyan);
+}
+.map-panel::after {
+  bottom: 10px;
+  right: 10px;
+  border-bottom: 2px solid var(--accent-cyan);
+  border-right: 2px solid var(--accent-cyan);
 }
 .panel-head {
   display: flex;
@@ -345,6 +476,7 @@ a { color: inherit; text-decoration: none; }
 /* ============================= HERO (latest incident) ============================= */
 .hero-panel { display: flex; flex-direction: column; }
 .hero {
+  position: relative;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -352,6 +484,27 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   flex-direction: column;
   height: 100%;
+}
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  z-index: 3;
+}
+.hero::before {
+  top: 10px;
+  right: 10px;
+  border-top: 2px solid var(--accent);
+  border-right: 2px solid var(--accent);
+}
+.hero::after {
+  bottom: 10px;
+  left: 10px;
+  border-bottom: 2px solid var(--accent);
+  border-left: 2px solid var(--accent);
 }
 .hero.empty {
   align-items: center;

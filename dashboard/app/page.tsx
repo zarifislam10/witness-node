@@ -63,12 +63,17 @@ export default function Dashboard() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <h1>WITNESS<span className="accent">·</span>NODE</h1>
+        <div className="logo-badge">
+          <span className="logo-mark">
+            W<span className="logo-mark-dot" />
+          </span>
+          <span className="logo-text">Witness·Node</span>
+        </div>
         <div className="meta">
           <span className={`pill ${usingMock ? "mock" : "live"}`}>
-            <span className="dot" /> {usingMock ? "mock data" : "live"}
+            <span className="dot" /> {usingMock ? "offline / mock" : "link established"}
           </span>
-          <span className="dim">COMMAND CENTER · {clock || "--:--:--"} UTC</span>
+          <span className="dim">OPS · {clock || "--:--:--"} UTC</span>
         </div>
       </motion.header>
 

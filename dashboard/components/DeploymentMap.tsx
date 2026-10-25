@@ -1,6 +1,7 @@
 "use client";
 
 import "leaflet/dist/leaflet.css";
+import { Fragment, useId } from "react";
 import { CircleMarker, MapContainer, TileLayer, Tooltip } from "react-leaflet";
 
 import { IDLE_NODES, NODE_LOCATIONS, locationFor } from "@/lib/nodes";
@@ -53,6 +54,7 @@ function deriveActiveMarkers(incidents: IncidentSummary[]): ActiveMarker[] {
 }
 
 export default function DeploymentMap({ incidents }: { incidents: IncidentSummary[] }) {
+  const mapKey = useId();
   const active = deriveActiveMarkers(incidents);
   const activeCoords = new Set(active.map((a) => a.location.coords.join(",")));
 
@@ -66,6 +68,7 @@ export default function DeploymentMap({ incidents }: { incidents: IncidentSummar
 
   return (
     <MapContainer
+      key={mapKey}
       center={[39.5, -98.5]}
       zoom={4}
       scrollWheelZoom={false}
@@ -99,8 +102,9 @@ export default function DeploymentMap({ incidents }: { incidents: IncidentSummar
 
       {active.map((m) => {
         const color = SEVERITY_COLOR[m.severity];
+        const key = m.location.coords.join(",");
         return (
-          <div key={m.nodeId}>
+          <Fragment key={key}>
             {/* Expanding ping ring */}
             <CircleMarker
               center={m.location.coords}
@@ -142,7 +146,7 @@ export default function DeploymentMap({ incidents }: { incidents: IncidentSummar
                 <span style={{ color }}>● {m.severity}</span> · {m.incidentCount} report{m.incidentCount === 1 ? "" : "s"}
               </Tooltip>
             </CircleMarker>
-          </div>
+          </Fragment>
         );
       })}
     </MapContainer>
