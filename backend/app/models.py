@@ -28,6 +28,11 @@ class IncidentSummary(BaseModel):
     triage: TriageReport
     audio_url: Optional[str]
     solana_tx: Optional[str]
+    location: Optional[str] = None  # human-readable, e.g. "Long Island, NY"
+    lat: Optional[float] = None
+    lng: Optional[float] = None
+    transcript: Optional[str] = None       # what the mic heard
+    transcript_language: Optional[str] = None  # ISO code, e.g. "en", "es"
 
 
 class IncidentResponse(BaseModel):

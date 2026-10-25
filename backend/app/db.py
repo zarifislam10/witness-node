@@ -21,6 +21,12 @@ CREATE TABLE IF NOT EXISTS incidents (
     solana_tx     TEXT
 );
 
+ALTER TABLE incidents ADD COLUMN IF NOT EXISTS location TEXT;
+ALTER TABLE incidents ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION;
+ALTER TABLE incidents ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION;
+ALTER TABLE incidents ADD COLUMN IF NOT EXISTS transcript TEXT;
+ALTER TABLE incidents ADD COLUMN IF NOT EXISTS transcript_language TEXT;
+
 CREATE INDEX IF NOT EXISTS incidents_received_at_idx
     ON incidents (received_at DESC);
 

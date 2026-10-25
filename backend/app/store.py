@@ -42,8 +42,9 @@ class IncidentStore:
             await conn.execute(
                 """
                 INSERT INTO incidents
-                    (incident_id, node_id, trigger, received_at, image_url, triage, audio_url, solana_tx)
-                VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8)
+                    (incident_id, node_id, trigger, received_at, image_url, triage,
+                     audio_url, solana_tx, location, lat, lng, transcript, transcript_language)
+                VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8, $9, $10, $11, $12, $13)
                 ON CONFLICT (incident_id) DO NOTHING
                 """,
                 incident.incident_id,
@@ -54,6 +55,11 @@ class IncidentStore:
                 incident.triage.model_dump_json(),
                 incident.audio_url,
                 incident.solana_tx,
+                incident.location,
+                incident.lat,
+                incident.lng,
+                incident.transcript,
+                incident.transcript_language,
             )
 
     async def get(self, incident_id: str) -> IncidentSummary | None:
@@ -91,6 +97,11 @@ def _row_to_summary(row) -> IncidentSummary:
         triage=triage,
         audio_url=row["audio_url"],
         solana_tx=row["solana_tx"],
+        location=row.get("location") if hasattr(row, "get") else row["location"],
+        lat=row["lat"] if "lat" in row.keys() else None,
+        lng=row["lng"] if "lng" in row.keys() else None,
+        transcript=row["transcript"] if "transcript" in row.keys() else None,
+        transcript_language=row["transcript_language"] if "transcript_language" in row.keys() else None,
     )
 
 

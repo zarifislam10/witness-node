@@ -20,4 +20,9 @@ export interface IncidentSummary {
   triage: TriageReport;
   audio_url: string | null;
   solana_tx: string | null;
+  location?: string | null;
+  lat?: number | null;
+  lng?: number | null;
+  transcript?: string | null;
+  transcript_language?: string | null;
 }

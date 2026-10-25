@@ -1,10 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 
-import { IncidentCard } from "@/components/IncidentCard";
+import { IncidentStrip } from "@/components/IncidentStrip";
+import { LatestIncident } from "@/components/LatestIncident";
+import { SeverityChart } from "@/components/SeverityChart";
+import { StatsBar } from "@/components/StatsBar";
+import { TelemetryLog } from "@/components/TelemetryLog";
 import { fetchIncidents } from "@/lib/api";
 import type { IncidentSummary } from "@/lib/types";
+
+const DeploymentMap = dynamic(() => import("@/components/DeploymentMap"), {
+  ssr: false,
+  loading: () => <div className="map-loading">loading map…</div>,
+});
 
 const POLL_MS = 3000;
 
@@ -12,6 +23,15 @@ export default function Dashboard() {
   const [incidents, setIncidents] = useState<IncidentSummary[]>([]);
   const [usingMock, setUsingMock] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [clock, setClock] = useState<string>("");
+
+  useEffect(() => {
+    const tick = () => setClock(new Date().toUTCString().slice(17, 25));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -30,50 +50,68 @@ export default function Dashboard() {
     };
   }, []);
 
-  const nodeCount = new Set(incidents.map((i) => i.node_id)).size;
-  const survivors = incidents.reduce((s, i) => s + i.triage.survivors_detected, 0);
-  const critical = incidents.filter((i) => i.triage.severity === "critical").length;
+  const activeIncident = useMemo(() => {
+    if (incidents.length === 0) return null;
+    return (selectedId && incidents.find((i) => i.incident_id === selectedId)) || incidents[0];
+  }, [incidents, selectedId]);
 
   return (
     <main className="app">
-      <header className="header">
+      <motion.header
+        className="header"
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
         <h1>WITNESS<span className="accent">·</span>NODE</h1>
         <div className="meta">
           <span className={`pill ${usingMock ? "mock" : "live"}`}>
             <span className="dot" /> {usingMock ? "mock data" : "live"}
           </span>
-          <span>Command Center</span>
+          <span className="dim">COMMAND CENTER · {clock || "--:--:--"} UTC</span>
         </div>
-      </header>
+      </motion.header>
 
-      <section className="stats">
-        <div className="stat">
-          <div className="label">Incidents</div>
-          <div className="value">{incidents.length}</div>
+      <section className="grid-top">
+        <StatsBar incidents={incidents} />
+        <SeverityChart incidents={incidents} />
+      </section>
+
+      <section className="grid-main">
+        <div className="map-panel">
+          <div className="panel-head">
+            <div>
+              <div className="eyebrow">Deployment map</div>
+              <div className="panel-title">Active beacons across the field</div>
+            </div>
+            <div className="panel-legend">
+              <span><span className="legend-dot" style={{background:"#4ade80"}}/>low</span>
+              <span><span className="legend-dot" style={{background:"#fbbf24"}}/>medium</span>
+              <span><span className="legend-dot" style={{background:"#ff5555"}}/>high</span>
+              <span><span className="legend-dot" style={{background:"#64748b"}}/>idle</span>
+            </div>
+          </div>
+          <div className="map-wrap">
+            <DeploymentMap incidents={incidents} />
+          </div>
         </div>
-        <div className="stat">
-          <div className="label">Nodes reporting</div>
-          <div className="value">{nodeCount}</div>
-        </div>
-        <div className="stat">
-          <div className="label">Survivors detected</div>
-          <div className="value">{survivors}</div>
-        </div>
-        <div className="stat">
-          <div className="label">Critical events</div>
-          <div className="value">{critical}</div>
+
+        <div className="hero-panel">
+          {!loaded ? (
+            <div className="hero empty"><div className="hero-empty-title">Connecting to field nodes…</div></div>
+          ) : (
+            <LatestIncident incident={activeIncident} />
+          )}
         </div>
       </section>
 
-      <section className="feed">
-        {!loaded ? (
-          <div className="empty">Connecting to field nodes…</div>
-        ) : incidents.length === 0 ? (
-          <div className="empty">No incidents yet. Waiting for a node to trigger.</div>
-        ) : (
-          incidents.map((i) => <IncidentCard key={i.incident_id} incident={i} />)
-        )}
-      </section>
+      <TelemetryLog incidents={incidents} />
+
+      <IncidentStrip
+        incidents={incidents}
+        activeId={activeIncident?.incident_id ?? null}
+        onSelect={setSelectedId}
+      />
     </main>
   );
 }

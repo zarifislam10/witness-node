@@ -30,17 +30,21 @@ Do not invent people or hazards you cannot see.
 """
 
 
-async def analyze_image(image_bytes: bytes) -> TriageReport:
+async def analyze_image(image_bytes: bytes, transcript: str | None = None) -> TriageReport:
     if not GEMINI_API_KEY:
         log.warning("GEMINI_API_KEY not set — returning stub triage.")
         return _stub_triage()
 
     shrunk = _downsample(image_bytes, max_dim=1024)
 
+    prompt = PROMPT
+    if transcript:
+        prompt += f"\n\nThe nearby microphone also heard this (may be in any language): \"{transcript}\". Factor this into survivor count and instructions, and reply in that language if non-English."
+
     payload = {
         "contents": [{
             "parts": [
-                {"text": PROMPT},
+                {"text": prompt},
                 {"inline_data": {
                     "mime_type": "image/jpeg",
                     "data": base64.b64encode(shrunk).decode(),

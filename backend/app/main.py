@@ -67,6 +67,10 @@ async def ingest_incident(
     node_id: str = Form(...),
     trigger: str = Form(...),
     ts: str = Form(...),
+    location: str | None = Form(default=None),
+    lat: float | None = Form(default=None),
+    lng: float | None = Form(default=None),
+    audio: UploadFile | None = File(default=None),
 ):
     if image.content_type not in {"image/jpeg", "image/jpg", "image/png"}:
         raise HTTPException(400, f"Unsupported content type: {image.content_type}")
@@ -77,10 +81,19 @@ async def ingest_incident(
     image_path.write_bytes(image_bytes)
     image_url = f"/media/images/{incident_id}.jpg"
 
-    log.info("Incident %s from %s (trigger=%s, %d bytes)",
-             incident_id, node_id, trigger, len(image_bytes))
+    log.info("Incident %s from %s (trigger=%s, %d bytes, location=%s)",
+             incident_id, node_id, trigger, len(image_bytes), location or "none")
 
-    triage = await gemini.analyze_image(image_bytes)
+    # Optional mic audio -> transcript via ElevenLabs STT
+    transcript, transcript_language = None, None
+    if audio is not None:
+        audio_bytes = await audio.read()
+        if audio_bytes:
+            transcript, transcript_language = await elevenlabs.transcribe(audio_bytes)
+            if transcript:
+                log.info("Transcript (%s): %s", transcript_language, transcript[:100])
+
+    triage = await gemini.analyze_image(image_bytes, transcript=transcript)
     audio_url = await elevenlabs.synthesize(triage.spoken_instructions, incident_id)
     solana_tx = await solana.log_triage(incident_id, triage.summary)
 
@@ -93,6 +106,11 @@ async def ingest_incident(
         triage=triage,
         audio_url=audio_url,
         solana_tx=solana_tx,
+        location=location,
+        lat=lat,
+        lng=lng,
+        transcript=transcript,
+        transcript_language=transcript_language,
     )
     await incident_store.add(summary)
 

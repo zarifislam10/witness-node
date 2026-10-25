@@ -1,8 +1,9 @@
-"""ElevenLabs TTS wrapper. STUB — writes a silent placeholder MP3 when no key is set."""
+"""ElevenLabs TTS + STT wrappers."""
 
 import logging
 import os
 from pathlib import Path
+from typing import Optional
 
 import httpx
 
@@ -43,3 +44,36 @@ async def synthesize(text: str, incident_id: str) -> str:
         return ""
 
     return f"{PUBLIC_BASE_URL}/media/audio/{incident_id}.mp3"
+
+
+async def transcribe(audio_bytes: bytes) -> tuple[Optional[str], Optional[str]]:
+    """Run ElevenLabs Scribe STT on an audio clip.
+
+    Returns (transcript, language_code). Both None on failure.
+    """
+    if not ELEVEN_API_KEY or not audio_bytes:
+        return None, None
+
+    url = "https://api.elevenlabs.io/v1/speech-to-text"
+    headers = {"xi-api-key": ELEVEN_API_KEY}
+    files = {
+        "file": ("audio.wav", audio_bytes, "audio/wav"),
+    }
+    data = {
+        "model_id": "scribe_v1",
+        "diarize": "false",
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=60) as client:
+            r = await client.post(url, headers=headers, files=files, data=data)
+            r.raise_for_status()
+            payload = r.json()
+        text = (payload.get("text") or "").strip()
+        lang = payload.get("language_code")
+        if not text:
+            return None, lang
+        return text, lang
+    except Exception as e:
+        log.exception("ElevenLabs STT failed: %s", e)
+        return None, None
