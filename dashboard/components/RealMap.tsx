@@ -1,7 +1,7 @@
 "use client";
 
 import "leaflet/dist/leaflet.css";
-import { Fragment, useEffect, useRef } from "react";
+import { Fragment, useEffect, useId, useRef } from "react";
 import { CircleMarker, MapContainer, TileLayer, Tooltip, useMap } from "react-leaflet";
 
 function MarkerFlyController({
@@ -118,10 +118,12 @@ export default function RealMap({
   onSelect?: (incidentId: string) => void;
   activeIncidentId?: string | null;
 }) {
+  const mapKey = useId();
   const markers = deriveMarkers(incidents);
 
   return (
     <MapContainer
+      key={mapKey}
       center={[39.5, -98.5]}
       zoom={4}
       minZoom={3}

@@ -199,22 +199,16 @@ export default function WitnessNodeDashboard() {
     <main className="min-h-screen bg-black text-[#e8ecf3]">
       <div className="mx-auto max-w-[1600px] overflow-hidden">
         <header className="topbar">
-          <div className="brand">
-            <span className="brand-tab" />
-            <img src="/assets/a90f4.svg" alt="Witness Node beacon" className="brand-glyph" />
-            <div className="brand-text">
-              <div className="brand-line">
-                <span className="brand-wit">WITNESS</span>
-                <span className="brand-dot" aria-hidden="true" />
-                <span className="brand-nod">NODE</span>
-              </div>
-              <small>
-                <span className="brand-katakana">ウィットネス</span>
-                <span className="brand-sep">·</span>
-                <span>{selected?.id ?? "STANDBY"}</span>
-              </small>
+          <div className="brand brand-humane">
+            <div className="brand-icon-wrap">
+              <img src="/assets/a90f4.svg" alt="Witness Node" className="brand-glyph" />
+              <span className="brand-signal brand-signal-1" aria-hidden="true" />
+              <span className="brand-signal brand-signal-2" aria-hidden="true" />
             </div>
-            <span className="brand-corner" aria-hidden="true" />
+            <div className="brand-mono">
+              <div className="brand-name">WITNESS<span className="brand-name-dot" aria-hidden="true" />NODE</div>
+              <div className="brand-tagline">NO SIGNAL LEFT BEHIND</div>
+            </div>
           </div>
           <div className="network-state">
             <span className="pill cyan">

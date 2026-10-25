@@ -747,3 +747,211 @@
   margin-top: 4px !important;
   font-family: var(--font-mono);
 }
+
+/* Icon-only brand badge — compact square shape */
+.brand.brand-icon-only {
+  width: 72px !important;
+  padding: 0 !important;
+  justify-content: center !important;
+}
+.brand.brand-icon-only .brand-glyph {
+  width: 44px !important;
+  height: 44px !important;
+  filter: none !important;
+}
+
+/* ================= INDUSTRIAL W/N MONOGRAM ================= */
+.brand.brand-industrial {
+  width: auto !important;
+  min-width: 220px !important;
+  padding: 0 20px 0 14px !important;
+  gap: 12px !important;
+  justify-content: flex-start !important;
+}
+.brand-industrial .brand-glyph {
+  width: 38px !important;
+  height: 38px !important;
+  filter: none !important;
+}
+.brand-mono {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.brand-wn {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  line-height: 0.85;
+}
+.brand-wn > span {
+  font-family: var(--font-sans), 'Inter:Extra Bold Italic', sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 42px;
+  color: var(--blue);
+  letter-spacing: -3px;
+  text-shadow: 2px 0 0 var(--blue); /* fake extra heaviness */
+}
+.brand-slash {
+  color: var(--red) !important;
+  font-size: 42px !important;
+  font-weight: 900 !important;
+  margin: 0 -4px !important;
+  transform: scaleX(1.3);
+}
+.brand-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 2.5px;
+  color: var(--blue);
+}
+.brand-sub-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--red);
+  display: inline-block;
+}
+
+/* Un-overlap the slash */
+.brand-wn {
+  gap: 4px !important;
+}
+.brand-wn > span {
+  letter-spacing: -1px !important;
+  text-shadow: none !important;
+}
+.brand-slash {
+  margin: 0 !important;
+  transform: scaleX(1) !important;
+  font-size: 36px !important;
+  font-weight: 800 !important;
+  position: relative;
+  top: -2px;
+}
+
+/* ================= HUMANE RESCUE BRAND ================= */
+.brand.brand-humane {
+  width: auto !important;
+  min-width: 260px !important;
+  padding: 0 22px 0 16px !important;
+  gap: 14px !important;
+  justify-content: flex-start !important;
+}
+
+/* Icon with a soft radiating signal — like a beacon pulsing out */
+.brand-icon-wrap {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.brand-humane .brand-glyph {
+  width: 36px !important;
+  height: 36px !important;
+  filter: none !important;
+  position: relative;
+  z-index: 2;
+}
+.brand-signal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--blue);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.6);
+  animation: beaconSignal 2.4s ease-out infinite;
+}
+.brand-signal-2 { animation-delay: 1.2s; }
+@keyframes beaconSignal {
+  0%   { opacity: 0.5; transform: translate(-50%, -50%) scale(0.6); border-width: 2px; }
+  60%  { opacity: 0.15; }
+  100% { opacity: 0;   transform: translate(-50%, -50%) scale(1.6); border-width: 1px; }
+}
+
+.brand-humane .brand-mono {
+  gap: 4px !important;
+}
+
+/* Clean, humanitarian typography — not italic, not screaming */
+.brand-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: 1px;
+  color: var(--blue);
+  line-height: 1;
+}
+.brand-name-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--red);
+  display: inline-block;
+}
+
+.brand-tagline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  color: rgba(10, 26, 58, 0.75);
+  text-transform: uppercase;
+}
+.brand-pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 6px var(--red);
+  animation: pulse 1.6s infinite;
+  display: inline-block;
+}
+
+/* ================= HUMANE RESCUE BRAND v2 — muted / dashboard-matching ================= */
+.brand.brand-humane {
+  background: linear-gradient(135deg, #0b1424 0%, #0f1a2e 100%) !important;
+  border: 1px solid rgba(96, 165, 250, 0.25) !important;
+  color: #e8ecf3 !important;
+  overflow: hidden;
+}
+.brand.brand-humane .brand-tab {
+  background: var(--red) !important;
+}
+.brand.brand-humane .brand-name {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  letter-spacing: 2px !important;
+}
+.brand.brand-humane .brand-name-dot {
+  background: var(--red) !important;
+  box-shadow: 0 0 6px rgba(255, 45, 85, 0.6);
+  animation: pulse 1.6s infinite;
+}
+.brand.brand-humane .brand-tagline {
+  color: var(--cyan) !important;
+  font-size: 8px !important;
+  letter-spacing: 2px !important;
+  font-weight: 500 !important;
+}
+.brand.brand-humane .brand-signal {
+  border-color: var(--cyan) !important;
+}
+.brand-pulse { display: none !important; }
